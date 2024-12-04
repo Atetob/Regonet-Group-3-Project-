@@ -105,20 +105,31 @@ plt.show()
 
 
 
-# Ensure 'Cost' is numeric
+
+import matplotlib.pyplot as plt
+
+## Ensure 'Cost' is numeric
 df['Cost'] = pd.to_numeric(df['Cost'], errors='coerce')
 
 # Average cost by damage type
 avg_cost_by_damage = df.groupby('Damage')['Cost'].mean()
 
-# Plot
+## Define colors
+colors = ['green' if damage == 'No damage' else 'red' for damage in avg_cost_by_damage.index]
+
+## Plot
 plt.figure(figsize=(8, 5))
-avg_cost_by_damage.sort_values().plot(kind='barh', color='salmon')
+avg_cost_by_damage.sort_values().plot(kind='barh', color=colors, edgecolor='black')
 plt.title('Average Cost by Damage Type', fontsize=14)
 plt.xlabel('Average Cost ($)', fontsize=12)
 plt.ylabel('Damage Type', fontsize=12)
 plt.grid(axis='x', linestyle='--', alpha=0.7)
+
+## Add a legend
+plt.legend(['No Damage', 'Other Damage'], loc='lower right')
+
 plt.show()
+
 
 
 # Convert FlightDate to datetime
