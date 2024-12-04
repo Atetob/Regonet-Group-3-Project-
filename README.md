@@ -167,11 +167,12 @@ wildlife_species = df['WildlifeSpecies'].value_counts().head(10)
 
 # Plot
 plt.figure(figsize=(10, 6))
-wildlife_species.sort_values().plot(kind='barh', color='purple')
+wildlife_species.sort_values().plot(kind='barh', color=['purple','pink','blue', 'yellow','brown','orange','teal','black','indigo', 'skyblue'])
 plt.title('Top 10 Wildlife Species Involved in Bird Strikes', fontsize=14)
 plt.xlabel('Number of Strikes', fontsize=12)
 plt.ylabel('Wildlife Species', fontsize=12)
 plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.savefig('Top_10_Wildlife_Species_Involved_in_Bird_Strikes.png', format='png', dpi=400)
 plt.show()
 
 
