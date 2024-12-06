@@ -15,6 +15,10 @@ data = pd.read_csv(r"C:\Users\oboma\Downloads\Bird_strikes.csv")
 df = pd.DataFrame(data)
 print(df)
 
+#dropna(axis=1) this entry removes the row instead of the column if they display missing values
+data_drop_row = df.dropna(axis=0)
+data_drop_row
+
 
 # In[15]:
 
@@ -57,11 +61,19 @@ df['Cost'] = pd.to_numeric(df['Cost'], errors='coerce')
 
 
 # Damage severity distribution
+# Ensure 'Cost' is numeric
+df['Cost'] = pd.to_numeric(df['Cost'], errors='coerce')
+
+# Fill or drop missing values (optional, depending on your use case)
+df['Cost'] = df['Cost'].fillna(0)  # Replace NaN with 0
+
+# Calculate damage severity distribution
 damage_severity = df['Damage'].value_counts()
 
 # Average cost by damage type
 avg_cost_by_damage = df.groupby('Damage')['Cost'].mean()
 
+# Print the results
 print("Bird Strikes by Damage Severity:\n", damage_severity)
 print("\nAverage Cost by Damage Type:\n", avg_cost_by_damage)
 
@@ -122,7 +134,55 @@ print("Bird Strikes by Origin State:\n", state_strikes)
 
 
 # Pilot warning effectiveness
+# Group data for pilot warnings, precipitation, and sky conditions
 pilot_warned_effectiveness = df.groupby('PilotWarned')['Damage'].value_counts().unstack().fillna(0)
+precipitation_impact = df.groupby('ConditionsPrecipitation')['Damage'].value_counts().unstack().fillna(0)
+sky_conditions_impact = df.groupby('ConditionsSky')['Damage'].value_counts().unstack().fillna(0)
+
+# Plotting Pilot Warning Effectiveness
+plt.figure(figsize=(8, 6))
+pilot_warned_effectiveness.plot(kind='bar', stacked=True, color=['green', 'orange', 'red'], edgecolor='black')
+plt.title('Effect of Pilot Warnings on Damage', fontsize=14)
+plt.xlabel('Pilot Warned', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+plt.legend(title='Damage Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Pilot_Warning_Effectiveness.png', format='png', dpi=400)
+plt.show()
+
+# Plotting Precipitation Impact
+plt.figure(figsize=(8, 6))
+precipitation_impact.plot(kind='bar', stacked=True, color=['blue', 'purple', 'pink'], edgecolor='black')
+plt.title('Impact of Precipitation on Damage', fontsize=14)
+plt.xlabel('Conditions Precipitation', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+plt.legend(title='Damage Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Precipitation_Impact.png', format='png', dpi=400)
+plt.show()
+
+# Plotting Sky Conditions Impact
+plt.figure(figsize=(8, 6))
+sky_conditions_impact.plot(kind='bar', stacked=True, color=['cyan', 'gray', 'yellow'], edgecolor='black')
+plt.title('Impact of Sky Conditions on Damage', fontsize=14)
+plt.xlabel('Conditions Sky', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+plt.legend(title='Damage Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Sky_Conditions_Impact.png', format='png', dpi=400)
+plt.show()
+
+#Use heatmaps for a different perspective
+plt.figure(figsize=(10, 6))
+sns.heatmap(pilot_warned_effectiveness, annot=True, fmt=".0f", cmap='YlGnBu')
+plt.title('Heatmap of Pilot Warnings and Damage Types', fontsize=14)
+plt.xlabel('Damage Type', fontsize=12)
+plt.ylabel('Pilot Warned', fontsize=12)
+plt.savefig('Pilot_Warnindg_Effectiveness_Heatmap.png', format='png', dpi=400)
+plt.show()
 
 # Precipitation and sky conditions
 precipitation_impact = df.groupby('ConditionsPrecipitation')['Damage'].value_counts().unstack().fillna(0)
@@ -143,12 +203,13 @@ damage_severity = df['Damage'].value_counts()
 
 # Plot
 plt.figure(figsize=(8, 5))
-damage_severity.plot(kind='bar', color='skyblue')
+damage_severity.plot(kind='barh', color=['skyblue', 'red'])
 plt.title('Bird Strikes by Damage Severity', fontsize=14)
-plt.xlabel('Damage Type', fontsize=12)
-plt.ylabel('Frequency', fontsize=12)
-plt.xticks(rotation=45)
-plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.xlabel('Frequency', fontsize=12)
+plt.ylabel('Damage Type', fontsize=12)
+plt.xticks(rotation=30)
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.savefig('Bird_Strikes_by_Damage_Severity.png', format='png', dpi=300)
 plt.show()
 
 
@@ -277,20 +338,38 @@ missing_coords = merged_data[merged_data['Latitude'].isna()]
 print("Airports with missing coordinates:\n", missing_coords['AirportName'].unique())
 
 
-# In[ ]:
+# Ensure 'Damage' is categorized properly and clean missing values
+df['Damage'] = df['Damage'].fillna('Unknown')  # Replace NaN with 'Unknown'
+df['MakeModel'] = df['MakeModel'].fillna('Unknown')  # Replace NaN with 'Unknown'
 
+# Grouping data by MakeModel and Damage
+damage_by_make_model = df.groupby(['MakeModel', 'Damage']).size().unstack(fill_value=0)
 
+# Top 10 MakeModels with the highest number of incidents for better visualization
+top_make_models = df['MakeModel'].value_counts().head(10).index
+filtered_damage_by_make_model = damage_by_make_model.loc[top_make_models]
 
+# Plotting a stacked bar chart
+plt.figure(figsize=(12, 8))
+filtered_damage_by_make_model.plot(kind='bar', stacked=True, figsize=(12, 8), cmap='tab20c', edgecolor='black')
+plt.title('Impact of MakeModel on Damage Level', fontsize=16)
+plt.xlabel('MakeModel', fontsize=12)
+plt.ylabel('Number of Bird Strikes', fontsize=12)
+plt.legend(title='Damage Level', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Impact_of_MakeModel_on_Damage_Level.png', format='png', dpi=400)
+plt.show()
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
+# Plotting a heatmap for a different perspective
+plt.figure(figsize=(12, 8))
+sns.heatmap(filtered_damage_by_make_model, annot=True, fmt="d", cmap='YlGnBu', linewidths=0.5)
+plt.title('Heatmap of Damage by MakeModel', fontsize=16)
+plt.xlabel('Damage Level', fontsize=12)
+plt.ylabel('MakeModel', fontsize=12)
+plt.tight_layout()
+plt.savefig('Heatmap_of_Damage_by_MakeModel.png', format='png', dpi=400)
+plt.show()
 
 
 
