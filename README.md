@@ -6,6 +6,10 @@ data = pd.read_csv(r"C:\Users\oboma\Downloads\Bird_strikes.csv")
 df = pd.DataFrame(data)
 print(df)
 
+#dropna(axis=1) this entry removes the row instead of the column if they display missing values
+data_drop_row = df.dropna(axis=0)
+data_drop_row
+
 # Frequency by airport
 airport_strikes = df['AirportName'].value_counts().head(20)
 
