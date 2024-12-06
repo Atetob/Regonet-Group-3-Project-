@@ -25,11 +25,19 @@ print("\nTop Wildlife Species in Bird Strikes:\n", wildlife_species_strikes)
 
 
 # Damage severity distribution
+## Ensure 'Cost' is numeric
+df['Cost'] = pd.to_numeric(df['Cost'], errors='coerce')
+
+## Fill or drop missing values (optional, depending on your use case)
+df['Cost'] = df['Cost'].fillna(0)  # Replace NaN with 0
+
+## Calculate damage severity distribution
 damage_severity = df['Damage'].value_counts()
 
-# Average cost by damage type
+## Average cost by damage type
 avg_cost_by_damage = df.groupby('Damage')['Cost'].mean()
 
+## Print the results
 print("Bird Strikes by Damage Severity:\n", damage_severity)
 print("\nAverage Cost by Damage Type:\n", avg_cost_by_damage)
 
