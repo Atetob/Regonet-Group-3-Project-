@@ -184,6 +184,55 @@ plt.savefig('Top_10_Wildlife_Species_Involved_in_Bird_Strikes.png', format='png'
 plt.show()
 
 
+# Group data for pilot warnings, precipitation, and sky conditions
+pilot_warned_effectiveness = df.groupby('PilotWarned')['Damage'].value_counts().unstack().fillna(0)
+precipitation_impact = df.groupby('ConditionsPrecipitation')['Damage'].value_counts().unstack().fillna(0)
+sky_conditions_impact = df.groupby('ConditionsSky')['Damage'].value_counts().unstack().fillna(0)
+
+# Plotting Pilot Warning Effectiveness
+plt.figure(figsize=(8, 6))
+pilot_warned_effectiveness.plot(kind='bar', stacked=True, color=['green', 'orange', 'red'], edgecolor='black')
+plt.title('Effect of Pilot Warnings on Damage', fontsize=14)
+plt.xlabel('Pilot Warned', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+plt.legend(title='Damage Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Pilot_Warning_Effectiveness.png', format='png', dpi=400)
+plt.show()
+
+# Plotting Precipitation Impact
+plt.figure(figsize=(8, 6))
+precipitation_impact.plot(kind='bar', stacked=True, color=['blue', 'purple', 'pink'], edgecolor='black')
+plt.title('Impact of Precipitation on Damage', fontsize=14)
+plt.xlabel('Conditions Precipitation', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+plt.legend(title='Damage Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Precipitation_Impact.png', format='png', dpi=400)
+plt.show()
+
+# Plotting Sky Conditions Impact
+plt.figure(figsize=(8, 6))
+sky_conditions_impact.plot(kind='bar', stacked=True, color=['cyan', 'gray', 'yellow'], edgecolor='black')
+plt.title('Impact of Sky Conditions on Damage', fontsize=14)
+plt.xlabel('Conditions Sky', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+plt.legend(title='Damage Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Sky_Conditions_Impact.png', format='png', dpi=400)
+plt.show()
+
+#Use heatmaps for a different perspective
+plt.figure(figsize=(10, 6))
+sns.heatmap(pilot_warned_effectiveness, annot=True, fmt=".0f", cmap='YlGnBu')
+plt.title('Heatmap of Pilot Warnings and Damage Types', fontsize=14)
+plt.xlabel('Damage Type', fontsize=12)
+plt.ylabel('Pilot Warned', fontsize=12)
+plt.savefig('Pilot_Warnindg_Effectiveness_Heatmap.png', format='png', dpi=400)
+plt.show()
 
 
 # Ensure numeric data
@@ -217,3 +266,39 @@ plt.show()
 
 
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Ensure 'Damage' is categorized properly and clean missing values
+df['Damage'] = df['Damage'].fillna('Unknown')  # Replace NaN with 'Unknown'
+df['MakeModel'] = df['MakeModel'].fillna('Unknown')  # Replace NaN with 'Unknown'
+
+# Grouping data by MakeModel and Damage
+damage_by_make_model = df.groupby(['MakeModel', 'Damage']).size().unstack(fill_value=0)
+
+# Top 10 MakeModels with the highest number of incidents for better visualization
+top_make_models = df['MakeModel'].value_counts().head(10).index
+filtered_damage_by_make_model = damage_by_make_model.loc[top_make_models]
+
+# Plotting a stacked bar chart
+plt.figure(figsize=(12, 8))
+filtered_damage_by_make_model.plot(kind='bar', stacked=True, figsize=(12, 8), cmap='tab20c', edgecolor='black')
+plt.title('Impact of MakeModel on Damage Level', fontsize=16)
+plt.xlabel('MakeModel', fontsize=12)
+plt.ylabel('Number of Bird Strikes', fontsize=12)
+plt.legend(title='Damage Level', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('Impact_of_MakeModel_on_Damage_Level.png', format='png', dpi=400)
+plt.show()
+
+# Plotting a heatmap for a different perspective
+plt.figure(figsize=(12, 8))
+sns.heatmap(filtered_damage_by_make_model, annot=True, fmt="d", cmap='YlGnBu', linewidths=0.5)
+plt.title('Heatmap of Damage by MakeModel', fontsize=16)
+plt.xlabel('Damage Level', fontsize=12)
+plt.ylabel('MakeModel', fontsize=12)
+plt.tight_layout()
+plt.savefig('Heatmap_of_Damage_by_MakeModel.png', format='png', dpi=400)
+plt.show()
